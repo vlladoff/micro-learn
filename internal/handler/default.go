@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 
 	"encoding/json"
 
+	"github.com/vlladoff/micro-learn/internal/middleware"
 	"github.com/vlladoff/micro-learn/internal/service"
 	"go.uber.org/fx"
 )
@@ -20,7 +22,11 @@ func NewDefaultHandler() *DefaultHandler {
 }
 
 func (h *DefaultHandler) GetPing(w http.ResponseWriter, r *http.Request) {
-	message := h.defaultService.Ping()
+	requestID := middleware.GetRequestID(r.Context())
+
+	log.Printf("[%s] Processing ping request in handler", requestID)
+
+	message := h.defaultService.Ping(r.Context())
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

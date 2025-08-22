@@ -6,6 +6,7 @@ import (
 
 	"github.com/vlladoff/micro-learn/internal/app"
 	"github.com/vlladoff/micro-learn/internal/handler"
+	"github.com/vlladoff/micro-learn/internal/middleware"
 	api "github.com/vlladoff/micro-learn/internal/server"
 	"github.com/vlladoff/micro-learn/internal/service"
 	"go.uber.org/fx"
@@ -15,6 +16,7 @@ func main() {
 	fx.New(
 		service.ServiceModule,
 		handler.HandlerModule,
+		middleware.MiddlewareModule,
 		app.AppModule,
 
 		fx.Provide(NewHttpServer),
@@ -24,7 +26,12 @@ func main() {
 }
 
 func NewHttpServer(lc fx.Lifecycle, server *app.SmplServer) *http.Server {
-	handler := api.Handler(server)
+	handler := api.HandlerWithOptions(server,
+		api.ChiServerOptions{
+			Middlewares: []api.MiddlewareFunc{
+				middleware.AddRequestId,
+			},
+		})
 
 	srv := &http.Server{
 		Addr:    ":8080",
