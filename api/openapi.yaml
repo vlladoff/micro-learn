@@ -1,0 +1,27 @@
+openapi: 3.0.3
+info:
+  title: User API
+  version: 1.0.0
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearerку
+
+paths:
+  /ping:
+    get:
+      summary: Ping service
+      operationId: getPing
+      responses:
+        '200':
+          description: Ping response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "pong"
