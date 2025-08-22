@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/vlladoff/micro-learn/internal/handler"
+	"go.uber.org/fx"
 )
 
 type SmplServer struct {
@@ -21,3 +22,7 @@ func NewSmplServer() *SmplServer {
 func (s *SmplServer) GetPing(w http.ResponseWriter, r *http.Request) {
 	s.defaultHandler.GetPing(w, r)
 }
+
+var AppModule = fx.Module("app",
+	fx.Provide(NewSmplServer),
+)
