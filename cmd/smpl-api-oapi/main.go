@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/vlladoff/micro-learn/internal/app"
 	"github.com/vlladoff/micro-learn/internal/handler"
@@ -16,6 +18,11 @@ import (
 )
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "healthcheck" {
+		healthCheck()
+		return
+	}
+
 	fx.New(
 		fx.Provide(
 			NewKafkaProducer,
@@ -80,4 +87,22 @@ func getEnv(key, defaultValue string) string {
 		return value
 	}
 	return defaultValue
+}
+
+func healthCheck() {
+	client := &http.Client{Timeout: 3 * time.Second}
+
+	resp, err := client.Get("http://localhost:8080/ping")
+	if err != nil {
+		log.Printf("Health check failed: %v", err)
+		os.Exit(1)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("Health check failed: status %d", resp.StatusCode)
+		os.Exit(1)
+	}
+
+	log.Println("Health check passed")
 }
