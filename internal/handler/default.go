@@ -8,16 +8,15 @@ import (
 
 	"github.com/vlladoff/micro-learn/internal/middleware"
 	"github.com/vlladoff/micro-learn/internal/service"
-	"go.uber.org/fx"
 )
 
 type DefaultHandler struct {
 	defaultService *service.DefaultService
 }
 
-func NewDefaultHandler() *DefaultHandler {
+func NewDefaultHandler(defaultService *service.DefaultService, jobService *service.JobService) *DefaultHandler {
 	return &DefaultHandler{
-		defaultService: service.NewDefaultService(),
+		defaultService: defaultService,
 	}
 }
 
@@ -32,7 +31,3 @@ func (h *DefaultHandler) GetPing(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": message})
 }
-
-var HandlerModule = fx.Module("handlers",
-	fx.Provide(NewDefaultHandler),
-)

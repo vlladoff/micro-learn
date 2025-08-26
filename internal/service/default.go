@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/vlladoff/micro-learn/internal/middleware"
-	"go.uber.org/fx"
 )
 
 type DefaultService struct {
@@ -22,7 +21,3 @@ func (s *DefaultService) Ping(ctx context.Context) string {
 
 	return "pong"
 }
-
-var ServiceModule = fx.Module("services",
-	fx.Provide(NewDefaultService),
-)

@@ -8,6 +8,52 @@ components:
     BearerAuth:
       type: http
       scheme: bearerку
+  
+  schemas:
+    CreateJobRequest:
+      type: object
+      required: [url, cron_expression]
+      properties:
+        url:
+          type: string
+          format: uri
+          example: "https://example.com/"
+          description: "URL to call on schedule"
+        cron_expression:
+          type: string
+          example: "*/5 * * * *"
+          description: "Cron expression defining the schedule"
+        comment:
+          type: string
+          maxLength: 255
+          example: "Ping example"
+          description: "Comment for the job"
+    
+    JobResponse:
+        type: object
+        properties:
+          id:
+            type: integer
+            format: int64
+          created_at:
+            type: string
+            format: date-time
+          next_run:
+            type: string
+            format: date-time
+    
+    JobDetailsResponse:
+      allOf:
+        - $ref: '#/components/schemas/JobResponse'
+        - type: object
+          properties:
+            last_run:
+              type: string
+              format: date-time
+            last_status:
+              type: integer
+              format: int32
+              description: "HTTP status code of the last run"
 
 paths:
   /ping:
@@ -25,3 +71,95 @@ paths:
               message:
                 type: string
                 example: "pong"
+
+  /jobs:
+    post:
+      summary: Create a scheduled job
+      operationId: createJob
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateJobRequest'
+      responses:
+        '201':
+          description: Job created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid cron expression"
+        '401':
+          description: Unauthorized
+
+  /jobs/{id}:
+    get:
+      summary: Get job details
+      operationId: getJob
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Job details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobDetailsResponse'
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Job not found"
+        '401':
+          description: Unauthorized
+    delete:
+      summary: Delete a scheduled job
+      operationId: deleteJob
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Job deleted successfully
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Job not found"
+        '401':
+          description: Unauthorized

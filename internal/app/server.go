@@ -9,18 +9,30 @@ import (
 
 type SmplServer struct {
 	defaultHandler *handler.DefaultHandler
+	jobHandler     *handler.JobHandler
 }
 
-func NewSmplServer() *SmplServer {
-	defaultHandler := handler.NewDefaultHandler()
-
+func NewSmplServer(defaultHandler *handler.DefaultHandler, jobHandler *handler.JobHandler) *SmplServer {
 	return &SmplServer{
 		defaultHandler: defaultHandler,
+		jobHandler:     jobHandler,
 	}
 }
 
 func (s *SmplServer) GetPing(w http.ResponseWriter, r *http.Request) {
 	s.defaultHandler.GetPing(w, r)
+}
+
+func (s *SmplServer) CreateJob(w http.ResponseWriter, r *http.Request) {
+	s.jobHandler.CreateJob(w, r)
+}
+
+func (s *SmplServer) GetJob(w http.ResponseWriter, r *http.Request, jobID int64) {
+	s.jobHandler.GetJob(w, r)
+}
+
+func (s *SmplServer) DeleteJob(w http.ResponseWriter, r *http.Request, jobID int64) {
+	s.jobHandler.DeleteJob(w, r)
 }
 
 var AppModule = fx.Module("app",
