@@ -1,0 +1,19 @@
+.DS_Store
+
+.idea/
+.vscode/
+
+node_modules/
+
+# Environment-specific files
+.env
+*.env.*
+*.pem
+
+# Logs and debug files
+debug.log
+error_log
+logs/
+*.log
+
+*.db
