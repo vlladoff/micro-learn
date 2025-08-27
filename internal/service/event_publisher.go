@@ -35,7 +35,7 @@ func (ep *EventPublisher) PublishJobCreated(ctx context.Context, job *Job) error
 	return ep.producer.PublishEvent(ctx, ep.topic, event)
 }
 
-func (ep *EventPublisher) PublishJobDeleted(ctx context.Context, jobID int64) error {
+func (ep *EventPublisher) PublishJobDeleted(ctx context.Context, jobID string) error {
 	event := &events.JobEvent{
 		Type:      events.JobDeleted,
 		JobID:     jobID,

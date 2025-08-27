@@ -33,8 +33,7 @@ components:
         type: object
         properties:
           id:
-            type: integer
-            format: int64
+            type: string
           created_at:
             type: string
             format: date-time
@@ -50,9 +49,11 @@ components:
             last_run:
               type: string
               format: date-time
+              nullable: true
             last_status:
               type: integer
               format: int32
+              nullable: true
               description: "HTTP status code of the last run"
 
 paths:
@@ -115,8 +116,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
       responses:
         '200':
           description: Job details
@@ -146,8 +146,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
       responses:
         '204':
           description: Job deleted successfully

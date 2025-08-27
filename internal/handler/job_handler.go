@@ -3,9 +3,8 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/vlladoff/micro-learn/internal/service"
 )
 
@@ -44,13 +43,8 @@ func (h *JobHandler) CreateJob(w http.ResponseWriter, r *http.Request) {
 
 func (h *JobHandler) GetJob(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		http.Error(w, "Invalid job ID", http.StatusBadRequest)
-		return
-	}
 
-	job, exists := h.jobService.GetJob(r.Context(), id)
+	job, exists := h.jobService.GetJob(r.Context(), idStr)
 	if !exists {
 		http.Error(w, "Job not found", http.StatusNotFound)
 		return
@@ -62,13 +56,8 @@ func (h *JobHandler) GetJob(w http.ResponseWriter, r *http.Request) {
 
 func (h *JobHandler) DeleteJob(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		http.Error(w, "Invalid job ID", http.StatusBadRequest)
-		return
-	}
 
-	if err := h.jobService.DeleteJob(r.Context(), id); err != nil {
+	if err := h.jobService.DeleteJob(r.Context(), idStr); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

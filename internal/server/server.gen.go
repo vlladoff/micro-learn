@@ -32,18 +32,18 @@ type CreateJobRequest struct {
 // JobDetailsResponse defines model for JobDetailsResponse.
 type JobDetailsResponse struct {
 	CreatedAt *time.Time `json:"created_at,omitempty"`
-	Id        *int64     `json:"id,omitempty"`
-	LastRun   *time.Time `json:"last_run,omitempty"`
+	Id        *string    `json:"id,omitempty"`
+	LastRun   *time.Time `json:"last_run"`
 
 	// LastStatus HTTP status code of the last run
-	LastStatus *int32     `json:"last_status,omitempty"`
+	LastStatus *int32     `json:"last_status"`
 	NextRun    *time.Time `json:"next_run,omitempty"`
 }
 
 // JobResponse defines model for JobResponse.
 type JobResponse struct {
 	CreatedAt *time.Time `json:"created_at,omitempty"`
-	Id        *int64     `json:"id,omitempty"`
+	Id        *string    `json:"id,omitempty"`
 	NextRun   *time.Time `json:"next_run,omitempty"`
 }
 
@@ -57,10 +57,10 @@ type ServerInterface interface {
 	CreateJob(w http.ResponseWriter, r *http.Request)
 	// Delete a scheduled job
 	// (DELETE /jobs/{id})
-	DeleteJob(w http.ResponseWriter, r *http.Request, id int64)
+	DeleteJob(w http.ResponseWriter, r *http.Request, id string)
 	// Get job details
 	// (GET /jobs/{id})
-	GetJob(w http.ResponseWriter, r *http.Request, id int64)
+	GetJob(w http.ResponseWriter, r *http.Request, id string)
 	// Ping service
 	// (GET /ping)
 	GetPing(w http.ResponseWriter, r *http.Request)
@@ -78,13 +78,13 @@ func (_ Unimplemented) CreateJob(w http.ResponseWriter, r *http.Request) {
 
 // Delete a scheduled job
 // (DELETE /jobs/{id})
-func (_ Unimplemented) DeleteJob(w http.ResponseWriter, r *http.Request, id int64) {
+func (_ Unimplemented) DeleteJob(w http.ResponseWriter, r *http.Request, id string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // Get job details
 // (GET /jobs/{id})
-func (_ Unimplemented) GetJob(w http.ResponseWriter, r *http.Request, id int64) {
+func (_ Unimplemented) GetJob(w http.ResponseWriter, r *http.Request, id string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -129,7 +129,7 @@ func (siw *ServerInterfaceWrapper) DeleteJob(w http.ResponseWriter, r *http.Requ
 	var err error
 
 	// ------------- Path parameter "id" -------------
-	var id int64
+	var id string
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", chi.URLParam(r, "id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
@@ -160,7 +160,7 @@ func (siw *ServerInterfaceWrapper) GetJob(w http.ResponseWriter, r *http.Request
 	var err error
 
 	// ------------- Path parameter "id" -------------
-	var id int64
+	var id string
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", chi.URLParam(r, "id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {

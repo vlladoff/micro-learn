@@ -27,11 +27,11 @@ func (s *SmplServer) CreateJob(w http.ResponseWriter, r *http.Request) {
 	s.jobHandler.CreateJob(w, r)
 }
 
-func (s *SmplServer) GetJob(w http.ResponseWriter, r *http.Request, jobID int64) {
+func (s *SmplServer) GetJob(w http.ResponseWriter, r *http.Request, jobID string) {
 	s.jobHandler.GetJob(w, r)
 }
 
-func (s *SmplServer) DeleteJob(w http.ResponseWriter, r *http.Request, jobID int64) {
+func (s *SmplServer) DeleteJob(w http.ResponseWriter, r *http.Request, jobID string) {
 	s.jobHandler.DeleteJob(w, r)
 }
 

@@ -2,7 +2,6 @@ package kafka
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill-kafka/v2/pkg/kafka"
@@ -42,7 +41,7 @@ func (p *Producer) PublishEvent(ctx context.Context, topic string, event *events
 
 	msg := message.NewMessage(watermill.NewUUID(), payload)
 	msg.Metadata.Set("event_type", string(event.Type))
-	msg.Metadata.Set("job_id", strconv.FormatInt(event.JobID, 10))
+	msg.Metadata.Set("job_id", event.JobID)
 
 	return p.publisher.Publish(topic, msg)
 }

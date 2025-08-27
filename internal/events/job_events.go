@@ -16,7 +16,7 @@ const (
 
 type JobEvent struct {
 	Type      EventType   `json:"type"`
-	JobID     int64       `json:"job_id"`
+	JobID     string      `json:"job_id"`
 	Timestamp time.Time   `json:"timestamp"`
 	Data      interface{} `json:"data"`
 }
