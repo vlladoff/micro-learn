@@ -7,7 +7,7 @@ components:
   securitySchemes:
     BearerAuth:
       type: http
-      scheme: bearerку
+      scheme: bearer
   
   schemas:
     CreateJobRequest:

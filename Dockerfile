@@ -15,11 +15,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
   -a -installsuffix cgo \
   -o app ./cmd/smpl-api-oapi/
 
-FROM scratch
+FROM alpine:latest
 
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-
-COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+RUN apk add --no-cache ca-certificates tzdata
 
 COPY --from=builder /build/app /app
 

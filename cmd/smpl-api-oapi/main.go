@@ -2,16 +2,19 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/vlladoff/micro-learn/internal/app"
+	"github.com/vlladoff/micro-learn/internal/config"
 	"github.com/vlladoff/micro-learn/internal/handler"
 	"github.com/vlladoff/micro-learn/internal/infrastructure/kafka"
+	"github.com/vlladoff/micro-learn/internal/infrastructure/redis"
 	"github.com/vlladoff/micro-learn/internal/middleware"
+	"github.com/vlladoff/micro-learn/internal/repository"
 	api "github.com/vlladoff/micro-learn/internal/server"
 	"github.com/vlladoff/micro-learn/internal/service"
 	"go.uber.org/fx"
@@ -24,11 +27,10 @@ func main() {
 	}
 
 	fx.New(
-		fx.Provide(
-			NewKafkaProducer,
-			NewKafkaConsumer,
-		),
-
+		config.ConfigModule,
+		redis.RedisModule,
+		kafka.KafkaModule,
+		repository.RepositoryModule,
 		service.ServiceModule,
 		handler.HandlerModule,
 		middleware.MiddlewareModule,
@@ -40,16 +42,17 @@ func main() {
 	).Run()
 }
 
-func NewHttpServer(lc fx.Lifecycle, server *app.SmplServer) *http.Server {
-	handler := api.HandlerWithOptions(server,
-		api.ChiServerOptions{
-			Middlewares: []api.MiddlewareFunc{
-				middleware.AddRequestId,
-			},
-		})
+func NewHttpServer(lc fx.Lifecycle, server *app.SmplServer, cfg *config.Config) *http.Server {
+	handler := api.HandlerWithOptions(server, api.ChiServerOptions{
+		Middlewares: []api.MiddlewareFunc{
+			middleware.RequestIDMiddleware,
+			middleware.AuthMiddleware,
+		},
+	})
 
+	addr := fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port)
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    addr,
 		Handler: handler,
 	}
 
@@ -66,33 +69,17 @@ func NewHttpServer(lc fx.Lifecycle, server *app.SmplServer) *http.Server {
 	return srv
 }
 
-func NewKafkaProducer() (*kafka.Producer, error) {
-	brokers := getBrokers()
-	return kafka.NewProducer(brokers)
-}
-
-func NewKafkaConsumer() (*kafka.Consumer, error) {
-	brokers := getBrokers()
-	groupID := getEnv("KAFKA_GROUP_ID", "job-service")
-	return kafka.NewConsumer(brokers, groupID)
-}
-
-func getBrokers() []string {
-	brokers := getEnv("KAFKA_BROKERS", "localhost:9092")
-	return strings.Split(brokers, ",")
-}
-
-func getEnv(key, defaultValue string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
-	}
-	return defaultValue
-}
-
 func healthCheck() {
-	client := &http.Client{Timeout: 3 * time.Second}
+	cfg, err := config.Load()
+	if err != nil {
+		log.Printf("Failed to load config for healthcheck: %v", err)
+		os.Exit(1)
+	}
 
-	resp, err := client.Get("http://localhost:8080/ping")
+	client := &http.Client{Timeout: 3 * time.Second}
+	url := fmt.Sprintf("http://%s:%d/ping", cfg.Server.Host, cfg.Server.Port)
+
+	resp, err := client.Get(url)
 	if err != nil {
 		log.Printf("Health check failed: %v", err)
 		os.Exit(1)

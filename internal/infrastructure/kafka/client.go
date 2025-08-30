@@ -6,12 +6,22 @@ import (
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill-kafka/v2/pkg/kafka"
 	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/vlladoff/micro-learn/internal/config"
 	"github.com/vlladoff/micro-learn/internal/events"
 )
 
 type Producer struct {
 	publisher message.Publisher
 	logger    watermill.LoggerAdapter
+}
+
+func NewKafkaProducer(cfg *config.Config) (*Producer, error) {
+	return NewProducer(cfg.Kafka.Brokers)
+}
+
+func NewKafkaConsumer(cfg *config.Config) (*Consumer, error) {
+	groupID := cfg.App.Name + "-job-service"
+	return NewConsumer(cfg.Kafka.Brokers, groupID)
 }
 
 func NewProducer(brokers []string) (*Producer, error) {

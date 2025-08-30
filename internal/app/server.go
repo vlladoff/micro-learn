@@ -1,26 +1,31 @@
 package app
 
 import (
+	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/vlladoff/micro-learn/internal/handler"
+	"github.com/vlladoff/micro-learn/internal/middleware"
 	"go.uber.org/fx"
 )
 
 type SmplServer struct {
-	defaultHandler *handler.DefaultHandler
-	jobHandler     *handler.JobHandler
+	jobHandler *handler.JobHandler
 }
 
-func NewSmplServer(defaultHandler *handler.DefaultHandler, jobHandler *handler.JobHandler) *SmplServer {
+func NewSmplServer(jobHandler *handler.JobHandler) *SmplServer {
 	return &SmplServer{
-		defaultHandler: defaultHandler,
-		jobHandler:     jobHandler,
+		jobHandler: jobHandler,
 	}
 }
 
 func (s *SmplServer) GetPing(w http.ResponseWriter, r *http.Request) {
-	s.defaultHandler.GetPing(w, r)
+	requestID := middleware.GetRequestID(r.Context())
+	log.Printf("[%s] Ping request", requestID)
+	
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"message": "pong"})
 }
 
 func (s *SmplServer) CreateJob(w http.ResponseWriter, r *http.Request) {

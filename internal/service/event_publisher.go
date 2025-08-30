@@ -6,6 +6,7 @@ import (
 
 	"github.com/vlladoff/micro-learn/internal/events"
 	"github.com/vlladoff/micro-learn/internal/infrastructure/kafka"
+	"github.com/vlladoff/micro-learn/internal/repository"
 )
 
 type EventPublisher struct {
@@ -20,7 +21,7 @@ func NewEventPublisherService(producer *kafka.Producer) *EventPublisher {
 	}
 }
 
-func (ep *EventPublisher) PublishJobCreated(ctx context.Context, job *Job) error {
+func (ep *EventPublisher) PublishJobCreated(ctx context.Context, job *repository.Job) error {
 	event := &events.JobEvent{
 		Type:      events.JobCreated,
 		JobID:     job.ID,
