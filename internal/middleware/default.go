@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	api "github.com/vlladoff/micro-learn/internal/server"
 	"go.uber.org/fx"
 )
 
@@ -25,17 +26,21 @@ func RequestIDMiddleware(next http.Handler) http.Handler {
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		auth := r.Header.Get("Authorization")
+		_, requiresAuth := r.Context().Value(api.BearerAuthScopes).([]string)
 
-		if !strings.HasPrefix(auth, "Bearer ") {
-			http.Error(w, "Missing or invalid authorization header", http.StatusUnauthorized)
-			return
-		}
+		if requiresAuth {
+			auth := r.Header.Get("Authorization")
 
-		token := strings.TrimPrefix(auth, "Bearer ")
-		if token != ValidToken {
-			http.Error(w, "Invalid token", http.StatusUnauthorized)
-			return
+			if !strings.HasPrefix(auth, "Bearer ") {
+				http.Error(w, "Missing or invalid authorization header", http.StatusUnauthorized)
+				return
+			}
+
+			token := strings.TrimPrefix(auth, "Bearer ")
+			if token != ValidToken {
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				return
+			}
 		}
 
 		next.ServeHTTP(w, r)
